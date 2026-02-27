@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wahl-O-Mat Kommunalwahl Kaufering & Landsberg 2026</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        /* CSS VARIABLEN FÜR LIGHT/DARK MODE */
+        :root { 
+            --gelb: #fdf6e3; --gruen: #e8f5e9; --weiss: #ffffff; --blau: #e1f5fe; 
+            --dark: #0f172a; --text: #334155; --text-light: #64748b; --bg: #f8fafc; 
+            --primary: #2563eb; --primary-hover: #1d4ed8;
+            --card-bg: #ffffff; --card-border: #e2e8f0; --info-bg: #f1f5f9; --info-border: #cbd5e1;
+            --table-header: rgba(248, 250, 252, 0.85); --table-border: #e2e8f0; --shadow: rgba(15, 23, 42, 0.08);
+            --success: #10b981; --danger: #ef4444; --neutral: #64748b;
+            --suggestion-bg: rgba(37, 99, 235, 0.05); --suggestion-text: #1d4ed8;
+        }
+        
+        [data-theme="dark"] {
+            --gelb: #423b08; --gruen: #0f3d1b; --weiss: #1e293b; --blau: #0c334e; 
+            --dark: #ffffff; --text: #e2e8f0; --text-light: #cbd5e1; --bg: #0f172a; 
+            --primary: #3b82f6; --primary-hover: #60a5fa;
+            --card-bg: #1e293b; --card-border: #334155; --info-bg: #0f172a; --info-border: #475569;
+            --table-header: rgba(15, 23, 42, 0.85); --table-border: #334155; --shadow: rgba(0,0,0,0.5);
+            --success: #059669; --danger: #dc2626; --neutral: #475569; 
+            --suggestion-bg: rgba(59, 130, 246, 0.15); --suggestion-text: #bfdbfe;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif; 
+            max-width: 1000px; margin: 0 auto; padding: 20px 15px; 
+            background: var(--bg); color: var(--text); line-height: 1.5; 
+            transition: background 0.3s, color 0.3s; overflow-x: hidden; display: flex; flex-direction: column; min-height: 95vh;
+        }
+        
+        h1, h2, h3, h4 { color: var(--dark); margin-top: 0; font-weight: 800; letter-spacing: -0.02em; }
+        .material-icons-round { font-size: 1.2em; vertical-align: middle; }
+        .flex-center { display: flex; align-items: center; gap: 6px; }
+
+        .card { 
+            background: var(--card-bg); padding: 25px 30px; border-radius: 20px; 
+            box-shadow: 0 10px 25px -5px var(--shadow), 0 4px 6px -4px var(--shadow); 
+            border: 1px solid var(--card-border); margin-bottom: 20px; 
+            transition: background 0.3s ease, border 0.3s; position: relative;
+        }
+
+        /* Generic Text Screen (für Anleitung, Impressum etc.) */
+        .text-screen { max-width: 800px; margin: 0 auto; padding: 20px 15px; display: none; }
+        .text-screen h2 { font-size: 2.2em; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; margin-bottom: 25px; }
+        .text-screen h3 { margin-top: 30px; color: var(--primary); }
+        .text-screen p, .text-screen li { font-size: 1.1em; line-height: 1.7; color: var(--text); }
+        
+        .theme-toggle { 
+            position: absolute; top: 15px; right: 15px; background: var(--card-bg); 
+            border: 1px solid var(--card-border); border-radius: 50%; width: 40px; height: 40px; 
+            cursor: pointer; color: var(--dark); box-shadow: 0 2px 8px var(--shadow); 
+            display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.2s;
+        }
+        .theme-toggle:hover { color: var(--primary); transform: scale(1.1); }
+
+        /* Startbildschirm */
+        .header-title { text-align: center; font-size: 2.5em; margin-bottom: 5px; margin-top: 15px; background: linear-gradient(135deg, var(--primary), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 30px; font-size: 1.1em; font-weight: 500; }
+        
+        .election-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .election-btn { 
+            padding: 25px 20px; border: 1px solid var(--card-border); border-radius: 16px; 
+            font-size: 1.25em; font-weight: 700; cursor: pointer; transition: all 0.2s; 
+            text-align: left; color: var(--dark); box-shadow: 0 4px 12px var(--shadow);
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;
+        }
+        .election-btn small { display: block; font-size: 0.7em; font-weight: 500; color: inherit; opacity: 0.8; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+        .election-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px var(--shadow); filter: brightness(0.97); }
+        .btn-buerger { background: var(--gelb); border-color: #fde047; }
+        .btn-gemeinde { background: var(--gruen); border-color: #86efac; }
+        .btn-landrat { background: var(--blau); border-color: #7dd3fc; }
+        .btn-kreistag { background: var(--weiss); border-color: #cbd5e1; }
+
+        @media (max-width: 550px) {
+            .election-grid { gap: 10px; }
+            .election-btn { padding: 15px; font-size: 1.1em; min-height: 100px; }
+            .election-btn small { font-size: 0.65em; flex-direction: column; align-items: flex-start; }
+            .card { padding: 20px 15px; }
+        }
+
+        .resume-btn { background: #f59e0b; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 1.05em; font-weight: 700; width: 100%; cursor: pointer; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+
+        /* Quiz Layout Desktop */
+        .quiz-layout { display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .side-nav-btn { background: transparent; border: none; color: var(--text-light); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; transition: 0.3s; font-weight: 700; font-size: 1em; }
+        .side-nav-btn .material-icons-round { font-size: 3.5em; margin-bottom: 2px; transition: 0.2s; }
+        .side-nav-btn:hover { color: var(--primary); }
+        .side-nav-btn:hover .material-icons-round { transform: scale(1.1); }
+        .side-nav-btn.hidden { visibility: hidden; opacity: 0; pointer-events: none; }
+
+        .quiz-card { flex: 1; max-width: 750px; margin-bottom: 0; width: 100%; }
+        .progress-container { width: 100%; background: var(--info-bg); height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa); width: 0%; transition: width 0.4s ease-out; border-radius: 4px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cat-badge { font-weight: 800; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.5px; color: var(--suggestion-text); background: var(--suggestion-bg); padding: 6px 12px; border-radius: 15px; }
+
+        .thesis-content-wrapper { display: flex; flex-direction: column; justify-content: center; }
+        .action-area { margin-top: auto; padding-top: 10px; }
+        .thesis-topic { color: var(--primary); font-weight: 800; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .thesis-text { font-size: 1.45em; font-weight: 800; margin: 0 0 15px 0; color: var(--dark); text-align: left; line-height: 1.35; }
+        
+        .info-box { background: var(--info-bg); border-left: 4px solid var(--primary); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 15px; font-size: 0.9em; color: var(--text); border: 1px solid var(--info-border); border-left: 4px solid var(--primary); }
+        .info-box strong { color: var(--dark); display: inline-block; margin-top: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-box strong:first-child { margin-top: 0; }
+        .info-box p { margin: 2px 0 0 0; }
+        
+        .weight-container { text-align: center; margin-bottom: 20px; }
+        .weight-toggle { display: inline-flex; align-items: center; gap: 8px; background: var(--card-bg); border: 2px solid var(--card-border); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 0.95em; font-weight: 700; color: var(--text); transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px var(--shadow); }
+        .weight-toggle:hover { border-color: var(--primary); color: var(--primary); }
+        input[type="checkbox"]:checked + .weight-toggle { background: #fef3c7; border-color: #f59e0b; color: #b45309; }
+        [data-theme="dark"] input[type="checkbox"]:checked + .weight-toggle { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #fbbf24; }
+        .weight-checkbox { display: none; } 
+
+        .vote-btn-group { display: flex; gap: 12px; margin-bottom: 5px; }
+        .vote-btn { flex: 1; padding: 15px 10px; border: none; border-radius: 14px; font-weight: 800; font-size: 1.1em; cursor: pointer; color: #ffffff !important; transition: all 0.2s; box-shadow: 0 4px 8px var(--shadow); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .vote-btn .material-icons-round { font-size: 1.6em; }
+        .vote-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .vote-btn:active { transform: translateY(1px); }
+        .vote-btn.selected { transform: scale(1.03); box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 5px var(--primary); z-index: 2; }
+        .vote-btn.dimmed { opacity: 0.4; transform: scale(0.98); filter: grayscale(0.5); }
+        .btn-ja { background: var(--success); } .btn-neutral { background: var(--neutral); } .btn-nein { background: var(--danger); }
+        
+        .mobile-nav-controls { display: none; }
+        .nav-text-btn { background: transparent; border: none; color: var(--text-light); font-weight: 700; cursor: pointer; padding: 10px; font-size: 0.95em; transition: 0.2s; display: flex; align-items: center; gap: 5px; border-radius: 8px; }
+        .nav-text-btn:hover { color: var(--dark); background: var(--info-bg); }
+
+        @media (min-width: 850px) {
+            .quiz-card { height: 580px; display: flex; flex-direction: column; }
+            .thesis-content-wrapper { height: 350px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        }
+        @media (max-width: 849px) {
+            .quiz-layout { flex-direction: column; }
+            .side-nav-btn { display: none; }
+            .mobile-nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 2px dashed var(--card-border); padding-top: 15px; width: 100%; }
+            .vote-btn-group { flex-direction: column; }
+            .vote-btn { flex-direction: row; justify-content: center; gap: 15px; padding: 15px; }
+            .vote-btn .material-icons-round { font-size: 1.5em; }
+        }
+
+        /* Party Select & Results */
+        .party-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px; }
+        .party-checkbox-label { display: flex; align-items: center; gap: 10px; padding: 12px; border: 2px solid var(--card-border); border-radius: 10px; cursor: pointer; background: var(--card-bg); color: var(--dark); font-weight: 700; transition: 0.2s; }
+        .party-checkbox-label:hover { border-color: var(--primary); background: var(--info-bg); }
+        .party-checkbox-label input { transform: scale(1.3); cursor: pointer; accent-color: var(--primary); }
+
+        .results-desktop-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        @media (min-width: 850px) { .results-desktop-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .bar-wrap { margin-bottom: 15px; }
+        .bar-info { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 6px; font-size: 1em; color: var(--dark); }
+        .bar-bg { background: var(--card-border); height: 20px; border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .bar-fill { background: linear-gradient(90deg, var(--primary), #60a5fa); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
+        
+        .subscore-box { background: var(--info-bg); border: 1px solid var(--info-border); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .subscore-box h4 { margin: 0; font-size: 0.8em; text-transform: uppercase; color: var(--text-light); }
+        .subscore-val { text-align: right; }
+        .subscore-val strong { display: block; color: var(--dark); font-size: 1.1em; font-weight: 800; }
+        
+        .vote-suggestion { background: var(--suggestion-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--primary); margin-top: 30px; color: var(--suggestion-text); }
+        .vote-party-badge { padding: 10px 15px; border: 2px solid; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: 0.2s; user-select: none; background: var(--card-bg); box-shadow: 0 2px 4px var(--shadow); width: 100px; }
+        .vote-party-badge:hover { transform: translateY(-2px); }
+
+        /* Interaktive Tabelle mit Glassmorphism & Custom Dropdown */
+        .table-scroll-wrapper { position: relative; margin-top: 25px; }
+        .scroll-hint { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: var(--primary); color: white; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; z-index: 10; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: pulse-horiz 2s infinite; opacity: 1; transition: opacity 0.5s; }
+        @media (max-width: 850px) { .scroll-hint { display: flex; } }
+        @keyframes pulse-horiz { 0% { transform: translateY(-50%) translateX(0); } 50% { transform: translateY(-50%) translateX(-8px); } 100% { transform: translateY(-50%) translateX(0); } }
+
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--table-border); max-height: 600px; box-shadow: 0 4px 12px var(--shadow); position: relative; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85em; background: var(--card-bg); min-width: 800px; color: var(--text); }
+        th, td { padding: 12px; border-bottom: 1px solid var(--table-border); text-align: center; }
+        th { background: var(--table-header); font-weight: 800; color: var(--dark); white-space: nowrap; position: sticky; top: 0; z-index: 2; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--table-border); }
+        td:first-child { position: sticky; left: 0; background: var(--card-bg); z-index: 1; border-right: 1px solid var(--table-border); text-align: left; min-width: 250px; }
+        th:first-child { position: sticky; left: 0; z-index: 3; border-right: 1px solid var(--table-border); text-align: left;}
+        
+        .interactive-cell { background: var(--info-bg); border-left: 1px solid var(--table-border); border-right: 1px solid var(--table-border); min-width: 170px; }
+        
+        /* Custom Select UI */
+        .custom-select-wrapper { position: relative; width: 100%; margin-bottom: 8px; text-align: left; }
+        .custom-select-trigger { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+        .custom-select-trigger:hover { border-color: var(--primary); }
+        .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; margin-top: 4px; z-index: 20; box-shadow: 0 10px 25px var(--shadow); overflow: hidden; }
+        .custom-select-option { padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.2s; }
+        .custom-select-option:hover { background: var(--info-bg); }
+
+        .weight-lbl { font-size: 0.8em; display: flex; align-items: center; justify-content: flex-start; gap: 5px; cursor: pointer; font-weight: 600; color: var(--text-light); }
+        
+        .sym-icon { font-size: 1.5em; vertical-align: middle; }
+        .sym-yes { color: var(--success); } .sym-no { color: var(--danger); } .sym-neu { color: var(--neutral); }
+        
+        .btn-primary { background: var(--primary); color: white; padding: 15px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 1.05em; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+        .btn-outline { background: transparent; border: 2px solid var(--card-border); color: var(--text); padding: 14px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-outline:hover { background: var(--info-bg); border-color: var(--info-border); color: var(--dark); }
+        .btn-home { background: var(--text); color: var(--card-bg); padding: 15px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 1.05em; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-home:hover { filter: brightness(0.85); transform: translateY(-2px); box-shadow: 0 4px 10px var(--shadow); }
+
+        /* Footer */
+        footer { margin-top: auto; padding: 30px 0 10px 0; text-align: center; color: var(--text-light); font-size: 0.85em; }
+        footer a { color: var(--text-light); text-decoration: none; margin: 0 10px; font-weight: 600; transition: color 0.2s; cursor: pointer; }
+        footer a:hover { color: var(--primary); text-decoration: underline; }
+
+        /* Print Layout */
+        @media print {
+            body { background: white; color: black; max-width: 100%; padding: 0; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            .no-print, .theme-toggle, .scroll-hint, footer { display: none !important; }
+            #screen-results { display: block !important; padding: 0; }
+            .results-desktop-grid { display: block; }
+            .bar-bg { border: 1px solid #000; background: white; height: 15px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .bar-fill { background: #555 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            .table-scroll-wrapper { margin-top: 20px; }
+            .table-container { overflow: visible; border: none; box-shadow: none; max-height: none; }
+            table { min-width: 100%; border: 1px solid #000; }
+            th, td { padding: 6px; border: 1px solid #ccc; font-size: 0.8em; }
+            th { background: transparent; backdrop-filter: none; }
+            th:first-child, td:first-child { position: static; min-width: auto; border-right: 1px solid #ccc; }
+            tr { page-break-inside: avoid; }
+            h2, h3 { page-break-after: avoid; margin-top: 20px; }
+            .subscore-box, .vote-suggestion { page-break-inside: avoid; border: 1px solid #000; padding: 10px; margin-bottom: 10px; background: transparent; color: black;}
+            .custom-select-trigger { border: none; padding: 0; background: transparent; font-weight: bold; color: black; }
+            .custom-select-trigger .material-icons-round { display: none; } 
+            .weight-lbl { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle no-print" onclick="toggleTheme()" title="Tag/Nacht Modus"><span class="material-icons-round">dark_mode</span></button>
+
+<div id="screen-start" class="no-print" style="padding: 10px; margin-top: 15px; display: block;">
+    <h1 class="header-title">Wahl-O-Mat 2026</h1>
+    <p class="subtitle">Kommunalwahl Kaufering & Landsberg am Lech</p>
+    
+    <button id="resume-btn" class="resume-btn" style="display:none;" onclick="resumeQuiz()">
+        <span class="material-icons-round">restore</span> Letzten Versuch fortsetzen
+    </button>
+    
+    <div class="election-grid">
+        <button class="election-btn btn-buerger" onclick="startQuiz('buerger')">
+            <span>Bürgermeister<br>Kaufering</span>
+            <small><span class="material-icons-round" style="font-size: 1.2em;">person</span> Gelber Zettel | 1 Stimme</small>
+        </button>
+        <button class="election-btn btn-gemeinde" onclick="startQuiz('gemeinde')">
+            <span>Gemeinderat<br>Kaufering</span>
+            <small><span class="material-icons-round" style="font-size: 1.2em;">groups</span> Hellgrüner Zettel | 24 Stimmen</small>
+        </button>
+        <button class="election-btn btn-landrat" onclick="startQuiz('landrat')">
+            <span>Landrat<br>Landsberg</span>
+            <small><span class="material-icons-round" style="font-size: 1.2em;">person</span> Hellblauer Zettel | 1 Stimme</small>
+        </button>
+        <button class="election-btn btn-kreistag" onclick="startQuiz('kreistag')">
+            <span>Kreistag<br>Landsberg</span>
+            <small><span class="material-icons-round" style="font-size: 1.2em;">groups</span> Weißer Zettel | 60 Stimmen</small>
+        </button>
+    </div>
+    
+    <button class="btn-outline" onclick="switchScreen('screen-anleitung')" style="margin-top: 10px;">
+        <span class="material-icons-round">help_outline</span> Wie funktioniert diese App?
+    </button>
+</div>
+
+<div id="screen-anleitung" class="card text-screen">
+    <h2>So funktioniert der Wahl-O-Mat</h2>
+    <p>Willkommen zur Entscheidungshilfe für die Kommunalwahl 2026 in Kaufering und dem Landkreis Landsberg am Lech. Diese App hilft dir, herauszufinden, welche Parteien und Kandidaten am besten zu deinen politischen Ansichten passen.</p>
+    
+    <h3><span class="material-icons-round">looks_one</span> Stimmzettel auswählen</h3>
+    <p>Du erhältst am Wahlsonntag bis zu vier Stimmzettel (je nachdem, wo du wohnst). Wähle auf der Startseite aus, für welche Wahl du den Test machen möchtest.</p>
+    
+    <h3><span class="material-icons-round">looks_two</span> Thesen beantworten</h3>
+    <p>Dir werden nacheinander politische Thesen präsentiert. Du kannst <strong>zustimmen</strong>, <strong>ablehnen</strong> oder <strong>neutral</strong> bleiben. Wenn dir ein Thema besonders am Herzen liegt, setze den Haken bei "Diese These ist mir besonders wichtig" (zählt doppelt). Weißt du keine Antwort, kannst du die Frage einfach überspringen.</p>
+
+    <h3><span class="material-icons-round">looks_3</span> Kumulieren & Panaschieren</h3>
+    <p>Das bayerische Wahlsystem für den Gemeinde- und Kreistag ist komplex. Du hast so viele Stimmen, wie es Sitze gibt (in Kaufering z.B. 24). Du kannst einer einzelnen Person bis zu 3 Stimmen geben (Kumulieren) und deine Stimmen über verschiedene Parteien verteilen (Panaschieren).</p>
+    <p><em>Tipp: Unsere App generiert dir am Ende einen exakten Verteilungsvorschlag für deine Stimmen basierend auf deinen Ergebnissen!</em></p>
+    <br>
+    
+    
+    <button class="btn-primary" onclick="switchScreen('screen-start')" style="margin-top: 40px;">
+        <span class="material-icons-round">arrow_back</span> Alles klar, zurück zum Start
+    </button>
+</div>
+
+<div id="screen-impressum" class="card text-screen">
+    <h2>Impressum</h2>
+    <p>Angaben gemäß § 5 TMG</p>
+    <p>
+        <strong>Armin Rohrmoser</strong><br>
+        Brückenring 36a<br>
+        86916 Kaufering<br>
+    </p>
+    <h3>Kontakt</h3>
+    <p>E-Mail: wahlomat.stoic954@slmail.me</p>
+    
+    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+    <p>
+        <strong>Armin Rohrmoser</strong><br>
+        Brückenring 36a<br>
+        86916 Kaufering<br>
+    </p>
+    
+    <h3>Haftungsausschluss</h3>
+    <p>Trotz sorgfältiger Recherche und inhaltlicher Kontrolle der Parteiprogramme (Stand: Frühjahr 2026) übernehmen wir keine Haftung für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten Thesen und Partei-Antworten. Diese App dient lediglich der politischen Information und stellt keine Wahlempfehlung dar.</p>
+    
+    <button class="btn-outline" onclick="switchScreen('screen-start')" style="margin-top: 40px;">
+        <span class="material-icons-round">arrow_back</span> Zurück zum Start
+    </button>
+</div>
+
+<div id="screen-datenschutz" class="card text-screen">
+    <h2>Datenschutzerklärung</h2>
+    
+    <h3>1. Datenschutz auf einen Blick</h3>
+    <p><strong>Deine Antworten bleiben bei dir!</strong> Diese Applikation ist so programmiert, dass deine Antworten auf die politischen Thesen <strong>niemals</strong> an einen Server gesendet werden. Die gesamte Auswertung und Berechnung findet lokal in deinem Browser (auf deinem Endgerät) statt. Wir nutzen den sogenannten <em>localStorage</em> deines Browsers lediglich dazu, deinen Fortschritt zwischenzuspeichern, falls du die Seite aus Versehen neu lädst. Du kannst diesen Speicher jederzeit löschen, indem du auf "Test abbrechen" klickst oder deine Browserdaten leerst.</p>
+    
+    <h3>2. Hosting über GitHub Pages</h3>
+    <p>Diese Website wird bei GitHub Pages gehostet (Anbieter: GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA). Wenn du diese Website besuchst, erfasst der Server von GitHub automatisch Informationen, die dein Browser sendet (sog. Server-Log-Dateien). Dazu gehören unter anderem IP-Adresse, Browsertyp/-version, verwendetes Betriebssystem und die Uhrzeit der Serveranfrage. Diese Datenerfassung ist technisch notwendig, um dir die Website sicher und fehlerfrei anzuzeigen (Art. 6 Abs. 1 lit. f DSGVO).</p>
+
+    <h3>3. Cookies und Tracking</h3>
+    <p>Diese App verwendet <strong>keine</strong> Tracking-Tools (wie Google Analytics) und setzt <strong>keine</strong> Cookies zu Marketingzwecken ein.</p>
+
+    <button class="btn-outline" onclick="switchScreen('screen-start')" style="margin-top: 40px;">
+        <span class="material-icons-round">arrow_back</span> Zurück zum Start
+    </button>
+</div>
+
+<div id="screen-quiz" class="no-print" style="display: none; padding-top: 10px;">
+    <div class="quiz-layout">
+        <button class="side-nav-btn no-print" onclick="goBack()" id="btn-back-side" style="visibility: hidden;">
+            <span class="material-icons-round">chevron_left</span> Zurück
+        </button>
+        
+        <div class="card quiz-card">
+            <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+            
+            <div class="quiz-header">
+                <span id="quiz-title" class="cat-badge">Kategorie</span>
+                <span id="quiz-progress" style="font-weight: 700; color: var(--text-light);">1 / X</span>
+            </div>
+            
+            <div class="thesis-content-wrapper" id="thesis-content-wrapper">
+                <div>
+                    <div id="thesis-topic" class="thesis-topic"><span class="material-icons-round" style="font-size:1.2em;">label</span> Thema</div>
+                    <div id="thesis-text" class="thesis-text">Lade These...</div>
+                    <div id="thesis-info" class="info-box">Lade Infos...</div>
+                </div>
+            </div>
+            
+            <div class="action-area">
+                <div class="weight-container">
+                    <label>
+                        <input type="checkbox" id="weight-checkbox" class="weight-checkbox">
+                        <div class="weight-toggle"><span class="material-icons-round" style="color: #f59e0b;">star</span> Diese These ist mir besonders wichtig</div>
+                    </label>
+                </div>
+                
+                <div class="vote-btn-group">
+                    <button id="btn-yes" class="vote-btn btn-ja" onclick="answer(1)">
+                        <span class="material-icons-round">check_circle</span> Stimme zu
+                    </button>
+                    <button id="btn-neutral" class="vote-btn btn-neutral" onclick="answer(0)">
+                        <span class="material-icons-round">remove_circle</span> Neutral
+                    </button>
+                    <button id="btn-no" class="vote-btn btn-nein" onclick="answer(-1)">
+                        <span class="material-icons-round">cancel</span> Lehne ab
+                    </button>
+                </div>
+                
+                <div class="mobile-nav-controls">
+                    <button id="btn-back-mobile" class="nav-text-btn" onclick="goBack()" style="visibility: hidden;">
+                        <span class="material-icons-round">arrow_back</span> Zurück
+                    </button>
+                    <button id="btn-skip-mobile" class="nav-text-btn" onclick="answer(null)">
+                        Überspringen <span class="material-icons-round">skip_next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <button class="side-nav-btn no-print" onclick="answer(null)" id="btn-skip-side">
+            <span class="material-icons-round">chevron_right</span> Überspr.
+        </button>
+    </div>
+    
+    <div style="text-align: center; margin-top: 10px;">
+        <button class="nav-text-btn" style="display: inline-flex; color: var(--text-light);" onclick="abortQuiz()">
+            <span class="material-icons-round" style="font-size: 1.1em;">close</span> Test abbrechen
+        </button>
+    </div>
+</div>
+
+<div id="screen-party-select" class="card no-print" style="display: none;">
+    <h2 style="margin-bottom: 10px;">Welche Parteien möchtest du vergleichen?</h2>
+    <p style="color: var(--text); margin-bottom: 25px;">Wähle die Listen aus, die dich interessieren. Für Smartphones empfehlen wir maximal 8 Parteien.</p>
+    
+    <div id="party-checkboxes" class="party-grid"></div>
+    
+    <div style="display: flex; gap: 15px; margin-top: 30px;">
+        <button class="btn-outline" onclick="goBackFromPartySelect()" style="flex:1;"><span class="material-icons-round">arrow_back</span> Zurück</button>
+        <button class="btn-primary" onclick="calculateResults()" style="flex:2;">Ergebnis anzeigen <span class="material-icons-round">analytics</span></button>
+    </div>
+</div>
+
+<div id="screen-results" class="card" style="display: none; padding: 35px 25px;">
+    
+    <div class="no-print" style="text-align: center; margin-bottom: 35px;">
+        <h2 id="result-title" style="font-size: 2em; margin-bottom: 5px;">Deine Auswertung</h2>
+        <p style="color: var(--text-light); font-weight: 500;">Hier siehst du, welche Listen am besten zu dir passen.</p>
+    </div>
+    <h2 class="print-only" style="display:none; text-align:center; border-bottom:1px solid #000; padding-bottom:10px;">Wahl-O-Mat Auswertung 2026</h2>
+
+    <div class="results-desktop-grid">
+        <div>
+            <h3 style="border-bottom: 2px solid var(--card-border); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <span class="material-icons-round" style="color: var(--primary);">leaderboard</span> Gesamtergebnis
+            </h3>
+            <div id="charts-container" style="margin-top: 20px;"></div>
+        </div>
+        
+        <div>
+            <h3 style="border-bottom: 2px solid var(--card-border); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <span class="material-icons-round" style="color: var(--primary);">category</span> Beste Matches nach Thema
+            </h3>
+            <div id="subscore-container" style="margin-top: 20px;"></div>
+            
+            <div id="vote-distribution" class="vote-suggestion" style="display:none;"></div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 40px;">
+        <h3 style="border-bottom: 2px solid var(--card-border); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons-round" style="color: var(--primary);">compare_arrows</span> Interaktiver Thesen-Vergleich
+        </h3>
+        <p class="no-print" style="font-size: 0.9em; color: var(--text-light); margin-top: 10px;">Tipp: Du kannst deine Antworten in der Tabelle <strong>nachträglich ändern</strong>. Das Ergebnis passt sich automatisch an!</p>
+        
+        <div class="table-scroll-wrapper">
+            <div class="scroll-hint" id="scroll-hint"><span class="material-icons-round">swipe_left</span></div>
+            <div id="comparison-wrapper" class="table-container" onscroll="hideScrollHint()">
+                </div>
+        </div>
+    </div>
+    
+    <div class="no-print" style="display: flex; gap: 15px; margin-top: 35px; flex-wrap: wrap;">
+        <button class="btn-outline" onclick="window.print()" style="flex: 1; min-width: 250px;">
+            <span class="material-icons-round">print</span> Drucken / PDF
+        </button>
+        <button class="btn-home" onclick="abortQuiz()" style="flex: 1; min-width: 250px;">
+            <span class="material-icons-round">home</span> Zurück zum Start
+        </button>
+    </div>
+</div>
+
+<div id="reason-modal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: var(--card-bg); color: var(--text); padding: 30px; border-radius: 16px; max-width: 500px; width: 90%; border: 1px solid var(--card-border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+        <h3 id="modal-title" style="margin-top: 0; color: var(--primary);">Partei</h3>
+        <p id="modal-text" style="font-size: 1.1em; margin-bottom: 25px;">Begründung...</p>
+        <button class="btn-home" onclick="document.getElementById('reason-modal').style.display='none'">Schließen</button>
+    </div>
+</div>
+
+<footer class="no-print">
+    <a onclick="switchScreen('screen-impressum')">Impressum</a> | 
+    <a onclick="switchScreen('screen-datenschutz')">Datenschutzerklärung</a>
+</footer>
+
+<script>
+    // DATENBANK: FINALES LASTENHEFT
+    const database = {
+        buerger: {
+            title: "Bürgermeister Kaufering", color: "var(--gelb)", votes: 1,
+            theses: [
+                { topic: "Finanzen", text: "Der Schuldenabbau muss absolute Priorität vor neuen Großprojekten haben.", info: "<strong>Definition:</strong> Fiskalische Konsolidierung versus Infrastrukturausbau.<br><strong>Hintergrund:</strong> Kaufering droht trotz hoher Steuereinnahmen ab 2026 Abhängigkeit von Hilfen.<br><strong>Beispiel:</strong> Ein „Ja“ bremst Projekte wie das neue Sportzentrum; ein „Nein“ lässt Kredite für soziale Zwecke zu.", scores: { "CSU (Löwenthal)": 1, "SPD (Salzberger)": -1 } },
+                { topic: "Verwaltung", text: "Um die hohe Personalfluktuation zu stoppen, ist ein grundlegender Führungswechsel in der Verwaltung nötig.", info: "<strong>Definition:</strong> Kritik am Managementstil des Amtsinhabers versus Kontinuität.", scores: { "CSU (Löwenthal)": 1, "SPD (Salzberger)": -1 } },
+                { topic: "Ortsentwicklung", text: "Der Fuggerplatz soll durch massive Begrünung und Sitzstufen zu einem sozialen Begegnungsort umgebaut werden.", info: "<strong>Definition:</strong> Städtebauliche Gestaltung des Zentrums von Neu-Kaufering.<br><strong>Hintergrund:</strong> Der Fuggerplatz ist derzeit stark asphaltiert und dient primär als Durchgangsraum.", scores: { "CSU (Löwenthal)": 0, "SPD (Salzberger)": 1 } },
+                { topic: "Infrastruktur", text: "Der Markt Kaufering soll den barrierefreien Umbau des Bahnhofs Kaufering finanziell priorisieren.", info: "<strong>Definition:</strong> Investition in Aufzüge und Rampen für Senioren und Behinderte.<br><strong>Hintergrund:</strong> Der Bahnhof ist zentral, aber in Teilen nicht barrierefrei.", scores: { "CSU (Löwenthal)": 0, "SPD (Salzberger)": 1 } },
+                { topic: "Bürgerservice", text: "Die Öffnungszeiten des Rathauses sollen massiv in die Abendstunden ausgeweitet werden.", info: "<strong>Definition:</strong> Anpassung an die Lebensrealität von Berufstätigen.", scores: { "CSU (Löwenthal)": 1, "SPD (Salzberger)": 0 } },
+                { topic: "Digitalisierung", text: "In der Verwaltung soll künftig KI zur automatisierten Bearbeitung von Bürgeranfragen eingesetzt werden.", info: "<strong>Hintergrund:</strong> Salzberger hat 2023 das „Digitale Amt“ eingeführt und plant den KI-Einsatz.", scores: { "CSU (Löwenthal)": 0, "SPD (Salzberger)": 1 } },
+                { topic: "Personal", text: "Es soll massiv neues Personal im Rathaus eingestellt werden, um Bürgeranliegen schneller zu bearbeiten.", info: "<strong>Hintergrund:</strong> Konflikt zwischen Service-Qualität und steigenden Personalkosten.", scores: { "CSU (Löwenthal)": -1, "SPD (Salzberger)": 1 } }
+            ]
+        },
+        gemeinde: {
+            title: "Gemeinderat Kaufering", color: "var(--gruen)", votes: 24,
+            theses: [
+                { topic: "Verkehr", text: "Flächendeckendes Tempo 30 im gesamten Ortsgebiet.", info: "<strong>Hintergrund:</strong> KM, Grüne und SPD befürworten Lärmschutz; CSU und UBV wollen den Verkehrsfluss auf Hauptachsen erhalten.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "UBV": 0, "KM": 1, "JU": 0 } },
+                { topic: "Wohnen", text: "Kommunale Flächen (Lechfeldwiesen V) sollen unter keinen Umständen an Investoren verkauft, sondern dauerhaft im Gemeindebesitz vermietet werden.", info: "<strong>Hintergrund:</strong> Verbot des Verkaufs kommunaler Grundstücke an private Investoren.", scores: { "CSU": -1, "Grüne": 1, "SPD": 1, "UBV": 1, "KM": 0, "JU": -1 } },
+                { topic: "Soziales", text: "Bei der Wohnungsvergabe müssen langjährige Kauferinger strikt vor Zuziehenden bevorzugt werden.", info: "<strong>Hintergrund:</strong> KM und JU fordern dies stark.", scores: { "CSU": 1, "Grüne": -1, "SPD": 1, "UBV": 1, "KM": 1, "JU": 1 } },
+                { topic: "Freizeit", text: "Einrichtung einer offiziellen Badestelle mit Grillzone am Lechufer.", info: "<strong>Hintergrund:</strong> Die Junge Union fordert dies für Jugendliche; Naturschützer fürchten Lärm und Müll.", scores: { "CSU": 1, "Grüne": -1, "SPD": 0, "UBV": 0, "KM": 0, "JU": 1 } },
+                { topic: "Sicherheit", text: "An Bahnhöfen und Plätzen soll Videoüberwachung zur Kriminalitätsprävention installiert werden.", info: "<strong>Hintergrund:</strong> Forderung der JU zur Kriminalitätsprävention.", scores: { "CSU": 1, "Grüne": -1, "SPD": -1, "UBV": 0, "KM": 0, "JU": 1 } },
+                { topic: "Wirtschaft", text: "Zur Einnahmensteigerung soll ein neues Gewerbegebiet am Ortsrand Richtung Landsberg ausgewiesen werden.", info: "<strong>Hintergrund:</strong> UBV und JU wollen neue Firmen locken; Ökologen lehnen Flächenversiegelung ab.", scores: { "CSU": 1, "Grüne": -1, "SPD": 0, "UBV": 1, "KM": 0, "JU": 1 } },
+                { topic: "Förderung", text: "Geld für Vereine soll künftig an konkrete Leistungen (z. B. Jugendarbeit) gekoppelt werden.", info: "<strong>Definition:</strong> Ende der pauschalen Förderung nach dem Gießkannenprinzip.", scores: { "CSU": 1, "Grüne": 0, "SPD": -1, "UBV": -1, "KM": 0, "JU": 1 } },
+                { topic: "Umwelt", text: "Der nachhaltige Ausbau des Fernwärmenetzes durch die Kommunalwerke soll priorisiert werden.", info: "<strong>Hintergrund:</strong> UBV und SPD fordern den nachhaltigen Ausbau.", scores: { "CSU": 1, "Grüne": 1, "SPD": 1, "UBV": 1, "KM": 1, "JU": 0 } },
+                { topic: "Bauen", text: "Bei kommunalen Bauten soll die Holz-Hybrid-Bauweise zwingend vorgeschrieben werden, auch bei Mehrkosten.", info: "<strong>Hintergrund:</strong> Grüne fordern dies als Klimaschutzmaßnahme; bürgerliche Gruppen fürchten hohe Baukosten.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "UBV": 0, "KM": 0, "JU": 0 } },
+                { topic: "Familie", text: "Bei der Kita-Platzvergabe sollen Kinder berufstätiger Eltern in Kaufering zwingend bevorzugt werden.", info: "<strong>Hintergrund:</strong> Reaktion auf den Kita-Platz-Notstand und Demonstrationen von Eltern.", scores: { "CSU": 1, "Grüne": 0, "SPD": 0, "UBV": 0, "KM": 0, "JU": 1 } }
+            ]
+        },
+        landrat: {
+            title: "Landrat Landsberg", color: "var(--blau)", votes: 1,
+            theses: [
+                { topic: "Gesundheit", text: "Das Klinikum Landsberg darf unter keinen Umständen privatisiert werden.", info: "<strong>Definition:</strong> Keine Privatisierung, auch nicht bei Defiziten.", scores: { "CSU (Eichinger)": 1, "Grüne (Groß)": 1, "AfD (Ramdohr)": 1, "BP (Wagner)": 1, "Linke": 1 } },
+                { topic: "Finanzen", text: "Die Kreisumlage muss gesenkt werden.", info: "<strong>Definition:</strong> Entlastung der Gemeinden zulasten des Landkreises.", scores: { "CSU (Eichinger)": -1, "Grüne (Groß)": 1, "AfD (Ramdohr)": 1, "BP (Wagner)": 1 } },
+                { topic: "Umwelt", text: "Windkraftanlagen im Westerholz sollen gebaut werden.", info: "<strong>Hintergrund:</strong> Konflikt zwischen Klimazielen und Landschaftsschutz.", scores: { "CSU (Eichinger)": 0, "Grüne (Groß)": 1, "AfD (Ramdohr)": -1, "BP (Wagner)": -1 } },
+                { topic: "Soziales", text: "Einführung einer Bezahlkarte für Asylbewerber statt Bargeldauszahlungen.", info: "<strong>Definition:</strong> Einführung einer Geldkarte statt Bar-Auszahlungen.", scores: { "CSU (Eichinger)": 1, "Grüne (Groß)": -1, "AfD (Ramdohr)": 1, "BP (Wagner)": 1 } },
+                { topic: "Gesundheit", text: "Der Landkreis soll gezielt in „Tele-Chirurgie“ am Klinikum investieren.", info: "<strong>Hintergrund:</strong> Spezifische Forderung der Bayernpartei zur Sanierung des Klinikums.", scores: { "CSU (Eichinger)": 0, "Grüne (Groß)": 0, "AfD (Ramdohr)": 0, "BP (Wagner)": 1 } },
+                { topic: "Bildung", text: "Der Landkreis soll eine eigene Pflegeschule am Klinikum zur Fachkräfteausbildung aufbauen.", info: "<strong>Hintergrund:</strong> Eichinger setzt auf eigene Pflegeschulen am Klinikum.", scores: { "CSU (Eichinger)": 1, "Grüne (Groß)": 1, "AfD (Ramdohr)": 0, "BP (Wagner)": 1 } }
+            ]
+        },
+        kreistag: {
+            title: "Kreistag Landsberg", color: "var(--weiss)", votes: 60,
+            theses: [
+                { topic: "Verkehr", text: "Der Landkreis soll die Millioneninvestition für die Fuchstalbahn alleine tragen, falls der Staat keine Zuschüsse zahlt.", info: "<strong>Hintergrund:</strong> Regionale Übernahme der Infrastrukturkosten eines Schienenprojekts.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "FW": 0, "ÖDP": 1, "Linke": 1, "FDP": 1, "AfD": -1 } },
+                { topic: "Umwelt", text: "Die Biotonne soll für Privathaushalte im Landkreis komplett gebührenfrei gestellt werden.", info: "<strong>Hintergrund:</strong> Refinanzierung über die Müllgrundgebühr zur Förderung der Trennung.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "FW": 1, "ÖDP": 1, "AfD": -1 } },
+                { topic: "Soziales", text: "Der Landkreis Landsberg soll ein eigenes, stationäres Frauenhaus finanzieren und betreiben.", info: "<strong>Hintergrund:</strong> Kernforderung der Linken für ein eigenes Haus im Kreis.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "Linke": 1, "AfD": 0 } },
+                { topic: "Verwaltung", text: "Personalstellen für Gender-Beauftragte und LGBTQ-Themen sollen zur Haushaltseinsparung gestrichen werden.", info: "<strong>Hintergrund:</strong> Sparvorschläge von BP und AfD.", scores: { "CSU": -1, "Grüne": -1, "SPD": -1, "BP": 1, "AfD": 1 } },
+                { topic: "Verkehr", text: "Bau von Rad-Schnellwegen zwischen den Gemeinden, auch zulasten landwirtschaftlicher Flächen.", info: "<strong>Definition:</strong> Bevorzugung schneller Radwege-Verbindungen im Landkreis.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "FW": 1, "FDP": 1, "ÖDP": 1 } },
+                { topic: "Mobilität", text: "Im ländlichen Raum soll primär auf Rufbusse statt auf feste Linientaktungen gesetzt werden.", info: "<strong>Definition:</strong> Fokus auf On-Demand-Systeme im ländlichen Raum.", scores: { "CSU": 1, "Grüne": -1, "SPD": 0, "FW": 1, "BP": 1, "FDP": 1 } },
+                { topic: "Umwelt", text: "Ein Verbot von Gasbohrungen im Landkreis Landsberg muss konsequent durchgesetzt werden.", info: "<strong>Hintergrund:</strong> Grüne fordern den Schutz von Trinkwasser vor Bohrungen im Kreis.", scores: { "CSU": 0, "Grüne": 1, "SPD": 1, "Linke": 1 } },
+                { topic: "Bildung", text: "Das klassische dreigliedrige Schulsystem (Haupt/Real/Gymnasium) muss im Landkreis streng beibehalten werden.", info: "<strong>Hintergrund:</strong> BP und FDP wollen bewahren; Linke und Grüne sind für längeres gemeinsames Lernen.", scores: { "CSU": 1, "Grüne": -1, "SPD": -1, "BP": 1, "FDP": 1, "Linke": -1 } }
+            ]
+        }
+    };
+
+    /* -----------------------------------------------------------
+       SYSTEM LOGIK
+       ----------------------------------------------------------- */
+    let currentElectionId = null;
+    let currentQ = 0;
+    let userAnswers = [];
+    let selectedParties = [];
+    
+    let globalResultsForVotes = [];
+    let excludedVoteParties = new Set();
+
+    function toggleTheme() {
+        let current = document.documentElement.getAttribute('data-theme');
+        let newTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        document.querySelector('.theme-toggle').innerHTML = newTheme === 'dark' ? '<span class="material-icons-round">light_mode</span>' : '<span class="material-icons-round">dark_mode</span>';
+        localStorage.setItem('wahlomat_theme', newTheme);
+    }
+    
+    window.onload = function() {
+        window.onbeforeprint = function() { document.querySelectorAll('.card').forEach(c => c.style.boxShadow = 'none'); };
+
+        let savedTheme = localStorage.getItem('wahlomat_theme');
+        if(savedTheme === 'dark') toggleTheme();
+        if (localStorage.getItem('wahlomat_save')) document.getElementById('resume-btn').style.display = 'flex';
+
+        // Event Listener für Custom Dropdown
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-select-wrapper')) {
+                document.querySelectorAll('.custom-select-options').forEach(opt => opt.style.display = 'none');
+            }
+        });
+    };
+
+    function saveProgress() {
+        localStorage.setItem('wahlomat_save', JSON.stringify({ id: currentElectionId, q: currentQ, ans: userAnswers }));
+    }
+
+    function clearProgress() {
+        localStorage.removeItem('wahlomat_save');
+        let resumeBtn = document.getElementById('resume-btn');
+        if(resumeBtn) resumeBtn.style.display = 'none';
+    }
+
+    function switchScreen(targetId) {
+        // Blende alle Haupt-Screens aus
+        document.querySelectorAll('body > div.card, body > div.text-screen, #screen-start').forEach(el => {
+            el.style.display = 'none';
+        });
+        document.getElementById(targetId).style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    function resumeQuiz() {
+        let state = JSON.parse(localStorage.getItem('wahlomat_save'));
+        if(state) {
+            currentElectionId = state.id;
+            currentQ = state.q;
+            userAnswers = state.ans;
+            
+            let elData = database[currentElectionId];
+            switchScreen('screen-quiz');
+            document.getElementById('quiz-title').innerText = elData.title;
+            
+            if(currentQ >= elData.theses.length) showPartySelection(); else loadQuestion();
+        }
+    }
+
+    function startQuiz(electionId) {
+        clearProgress();
+        currentElectionId = electionId;
+        currentQ = 0;
+        
+        let elData = database[currentElectionId];
+        userAnswers = new Array(elData.theses.length).fill(null).map(() => ({ val: null, weight: 1, answered: false, skipped: false }));
+        
+        switchScreen('screen-quiz');
+        document.getElementById('quiz-title').innerText = elData.title;
+        
+        loadQuestion();
+        saveProgress();
+    }
+
+    function loadQuestion() {
+        let thesesList = database[currentElectionId].theses;
+        document.getElementById('quiz-progress').innerText = `Frage ${currentQ + 1} von ${thesesList.length}`;
+        
+        let thesis = thesesList[currentQ];
+        document.getElementById('thesis-topic').innerHTML = `<span class="material-icons-round" style="font-size: 1.2em;">label</span> ${thesis.topic}`;
+        document.getElementById('thesis-text').innerText = thesis.text;
+        
+        let infoBox = document.getElementById('thesis-info');
+        if (thesis.info) { infoBox.innerHTML = thesis.info; infoBox.style.display = 'block'; } 
+        else { infoBox.style.display = 'none'; }
+        
+        document.getElementById('progress-bar').style.width = ((currentQ / thesesList.length) * 100) + '%';
+        
+        document.getElementById('btn-back-side').style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+        document.getElementById('btn-back-mobile').style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+        
+        let btns = [document.getElementById('btn-yes'), document.getElementById('btn-neutral'), document.getElementById('btn-no')];
+        btns.forEach(b => b.classList.remove('selected', 'dimmed'));
+        
+        let existing = userAnswers[currentQ];
+        document.getElementById('weight-checkbox').checked = (existing.weight === 2);
+        
+        if (existing.answered && !existing.skipped) {
+            if (existing.val === 1) { btns[0].classList.add('selected'); btns[1].classList.add('dimmed'); btns[2].classList.add('dimmed'); }
+            if (existing.val === 0) { btns[1].classList.add('selected'); btns[0].classList.add('dimmed'); btns[2].classList.add('dimmed'); }
+            if (existing.val === -1) { btns[2].classList.add('selected'); btns[0].classList.add('dimmed'); btns[1].classList.add('dimmed'); }
+        }
+    }
+
+    function goBack() {
+        if (currentQ > 0) { currentQ--; loadQuestion(); saveProgress(); }
+    }
+    
+    function goBackFromPartySelect() {
+        switchScreen('screen-quiz');
+        currentQ--; 
+        loadQuestion();
+    }
+
+    function answer(val) {
+        userAnswers[currentQ].val = val;
+        userAnswers[currentQ].weight = document.getElementById('weight-checkbox').checked ? 2 : 1;
+        userAnswers[currentQ].skipped = (val === null);
+        userAnswers[currentQ].answered = true;
+        
+        currentQ++;
+        saveProgress();
+        
+        if (currentQ < database[currentElectionId].theses.length) loadQuestion();
+        else {
+            document.getElementById('progress-bar').style.width = '100%';
+            setTimeout(showPartySelection, 300);
+        }
+    }
+
+    function showPartySelection() {
+        switchScreen('screen-party-select');
+        
+        let elData = database[currentElectionId];
+        let boxContainer = document.getElementById('party-checkboxes');
+        boxContainer.innerHTML = '';
+        
+        let activeParties = new Set();
+        elData.theses.forEach(t => { if(t.scores) Object.keys(t.scores).forEach(p => activeParties.add(p)); });
+        
+        Array.from(activeParties).forEach(party => {
+            boxContainer.innerHTML += `<label class="party-checkbox-label"><input type="checkbox" value="${party}" checked>${party}</label>`;
+        });
+    }
+
+    function calculateResults(fromTable = false) {
+        if(!fromTable) {
+            switchScreen('screen-results');
+            selectedParties = [];
+            document.querySelectorAll('#party-checkboxes input:checked').forEach(cb => selectedParties.push(cb.value));
+            clearProgress();
+            excludedVoteParties.clear();
+        }
+        
+        let elData = database[currentElectionId];
+        let results = [];
+        let subScores = {};
+        
+        selectedParties.forEach(party => {
+            let maxPoints = 0; let earnedPoints = 0;
+            subScores[party] = {};
+            
+            elData.theses.forEach((t, index) => {
+                let uAns = userAnswers[index];
+                if (uAns.skipped || uAns.val === null) return;
+                
+                let pScore = t.scores[party];
+                if (pScore !== undefined) {
+                    if(!subScores[party][t.topic]) subScores[party][t.topic] = {earned: 0, max: 0};
+
+                    let distance = Math.abs(uAns.val - pScore);
+                    let points = (2 - distance) * uAns.weight;
+                    let maxP = 2 * uAns.weight;
+                    
+                    maxPoints += maxP; earnedPoints += points;
+                    subScores[party][t.topic].earned += points; subScores[party][t.topic].max += maxP;
+                }
+            });
+            
+            results.push({ name: party, pct: maxPoints > 0 ? Math.round((earnedPoints / maxPoints) * 100) : 0 });
+        });
+        
+        results.sort((a, b) => b.pct - a.pct);
+        globalResultsForVotes = results;
+        
+        let chartsHTML = '';
+        results.forEach(r => {
+            chartsHTML += `<div class="bar-wrap"><div class="bar-info"><span>${r.name}</span><span>${r.pct}%</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: ${fromTable ? r.pct+'%' : '0%'};" data-width="${r.pct}%"></div></div></div>`;
+        });
+        document.getElementById('charts-container').innerHTML = chartsHTML;
+        
+        if(!fromTable) {
+            let bars = document.querySelectorAll('.bar-fill');
+            bars.forEach((bar, idx) => {
+                setTimeout(() => { bar.style.width = bar.getAttribute('data-width'); }, 100 + (idx * 150));
+            });
+        } else {
+            document.querySelectorAll('.bar-fill').forEach(bar => bar.style.width = bar.getAttribute('data-width'));
+        }
+
+        let topics = [...new Set(elData.theses.map(t => t.topic))];
+        let subHTML = '';
+        topics.forEach(topic => {
+            let bestParty = ""; let bestPct = -1;
+            selectedParties.forEach(p => {
+                let s = subScores[p][topic];
+                if(s && s.max > 0) {
+                    let pct = Math.round((s.earned / s.max) * 100);
+                    if(pct > bestPct) { bestPct = pct; bestParty = p; }
+                }
+            });
+            if(bestPct >= 0) subHTML += `<div class="subscore-box">
+                <div><h4>${topic}</h4><strong style="font-size:1.1em; color:var(--text);">${bestParty}</strong></div>
+                <div class="subscore-val"><strong>${bestPct}%</strong><small style="color:var(--text-light); font-size:0.8em; display:block;">Match</small></div>
+            </div>`;
+        });
+        document.getElementById('subscore-container').innerHTML = subHTML;
+
+        renderVoteDistribution();
+        buildComparisonTable(elData, selectedParties);
+        
+        document.querySelector('.print-only').style.display = 'block';
+    }
+
+    /* -----------------------------------------------------------
+       INTERAKTIVER STIMMEN-VERTEILER
+       ----------------------------------------------------------- */
+    function renderVoteDistribution() {
+        let elData = database[currentElectionId];
+        let distBox = document.getElementById('vote-distribution');
+        
+        if (elData.votes <= 1) { distBox.style.display = 'none'; return; }
+        distBox.style.display = 'block';
+        
+        let totalVotes = elData.votes;
+        let activeResults = globalResultsForVotes.filter(r => r.pct > 0 && !excludedVoteParties.has(r.name));
+        let totalPct = activeResults.reduce((sum, r) => sum + r.pct, 0);
+        let distribution = {};
+        
+        if (totalPct > 0) {
+            let rawVotes = activeResults.map(r => {
+                let exact = (r.pct / totalPct) * totalVotes;
+                return { name: r.name, base: Math.floor(exact), remainder: exact - Math.floor(exact) };
+            });
+            let assigned = rawVotes.reduce((sum, r) => sum + r.base, 0);
+            let deficit = totalVotes - assigned;
+            rawVotes.sort((a, b) => b.remainder - a.remainder);
+            for(let i=0; i<deficit; i++) if(rawVotes[i]) rawVotes[i].base += 1;
+            rawVotes.forEach(r => distribution[r.name] = r.base);
+        }
+
+        let distHTML = `<h3 style="margin-bottom:10px; display:flex; align-items:center; gap:8px;"><span class="material-icons-round" style="color:var(--primary);">how_to_vote</span> Interaktiver Stimmen-Verteiler (${totalVotes} Stimmen)</h3>`;
+        distHTML += `<p style="margin:0 0 20px 0; font-size:0.95em; color:var(--text-light);">Wen möchtest du unterstützen? <strong>Klicke auf Parteien, um sie auszuschließen.</strong> Deine Stimmen werden dann automatisch neu berechnet!</p>`;
+        distHTML += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:15px;">`;
+        
+        globalResultsForVotes.forEach(r => {
+            if(r.pct > 0) {
+                let isChecked = !excludedVoteParties.has(r.name);
+                let votes = isChecked && distribution[r.name] ? distribution[r.name] : 0;
+                let btnStyle = isChecked ? 'background: var(--primary); color: white; border-color: var(--primary);' : 'background: transparent; color: var(--text-light); border-color: var(--card-border); opacity: 0.6;';
+                let icon = isChecked ? 'check_circle' : 'cancel';
+                
+                distHTML += `<div class="vote-party-badge" onclick="toggleVoteParty('${r.name}')" style="${btnStyle}">
+                    <span style="font-size:1.6em; font-weight:800; margin-bottom:5px;">${votes}</span>
+                    <span style="font-size:0.85em; white-space:nowrap; display:flex; align-items:center; gap:5px;"><span class="material-icons-round" style="font-size:1.1em;">${icon}</span> ${r.name}</span>
+                </div>`;
+            }
+        });
+        
+        distHTML += `</div><p style="margin:0; font-size:0.85em; opacity:0.8; margin-top:15px;"><span class="material-icons-round" style="font-size:1.2em; vertical-align:middle;">info</span> Tipp beim Panaschieren: Du kannst einzelnen Personen auf der Liste maximal 3 Stimmen geben (Kumulieren).</p>`;
+        distBox.innerHTML = distHTML;
+    }
+
+    function toggleVoteParty(partyName) {
+        if(excludedVoteParties.has(partyName)) excludedVoteParties.delete(partyName);
+        else excludedVoteParties.add(partyName);
+        renderVoteDistribution();
+    }
+
+    /* -----------------------------------------------------------
+       INTERAKTIVE TABELLE & CUSTOM DROPDOWNS
+       ----------------------------------------------------------- */
+    function getCustomDropdownLabel(val, skipped) {
+        if(skipped || val === null) return `<span class="flex-center" style="color:var(--text-light)"><span class="material-icons-round">skip_next</span> Übersprungen</span><span class="material-icons-round" style="color:var(--text-light);">expand_more</span>`;
+        if(val === 1) return `<span class="flex-center" style="color:var(--success)"><span class="material-icons-round">check_circle</span> Stimme zu</span><span class="material-icons-round" style="color:var(--text-light);">expand_more</span>`;
+        if(val === 0) return `<span class="flex-center" style="color:var(--neutral)"><span class="material-icons-round">remove_circle</span> Neutral</span><span class="material-icons-round" style="color:var(--text-light);">expand_more</span>`;
+        if(val === -1) return `<span class="flex-center" style="color:var(--danger)"><span class="material-icons-round">cancel</span> Lehne ab</span><span class="material-icons-round" style="color:var(--text-light);">expand_more</span>`;
+    }
+
+    function buildComparisonTable(elData, activePartiesArr) {
+        let tableHTML = `<table id="compTable"><tr><th class="text-left">These</th><th class="interactive-cell">Deine Antwort<br><small style="font-weight:normal; color:var(--primary); display:flex; align-items:center; justify-content:center; gap:3px;"><span class="material-icons-round" style="font-size:1.1em;">arrow_downward</span> Hier ändern</small></th>`;
+        activePartiesArr.forEach(r => { tableHTML += `<th>${r}</th>`; });
+        tableHTML += '</tr>';
+        
+        elData.theses.forEach((t, i) => {
+            let uAns = userAnswers[i];
+            
+            let selHTML = `
+            <div class="custom-select-wrapper" onclick="toggleDropdown(event, ${i})">
+                <div class="custom-select-trigger" id="trigger-${i}">
+                    ${getCustomDropdownLabel(uAns.val, uAns.skipped)}
+                </div>
+                <div class="custom-select-options" id="options-${i}" style="display:none;">
+                    <div class="custom-select-option" onclick="updateAnswer(event, ${i}, '1')"><span class="material-icons-round sym-yes">check_circle</span> Stimme zu</div>
+                    <div class="custom-select-option" onclick="updateAnswer(event, ${i}, '0')"><span class="material-icons-round sym-neu">remove_circle</span> Neutral</div>
+                    <div class="custom-select-option" onclick="updateAnswer(event, ${i}, '-1')"><span class="material-icons-round sym-no">cancel</span> Lehne ab</div>
+                    <div class="custom-select-option" onclick="updateAnswer(event, ${i}, 'null')"><span class="material-icons-round" style="color:var(--text-light)">skip_next</span> Überspringen</div>
+                </div>
+            </div>
+            <label class="weight-lbl" style="justify-content:flex-start; margin-top:10px;">
+                <input type="checkbox" onchange="updateWeight(${i}, this.checked)" ${uAns.weight===2 && !uAns.skipped ? 'checked':''}> 
+                <span class="material-icons-round" style="color:${uAns.weight===2 && !uAns.skipped ? '#f59e0b' : 'var(--text-light)'}; font-size:1.3em;">star</span> Doppelt werten
+            </label>`;
+
+            tableHTML += `<tr><td class="text-left"><span class="topic-badge">${t.topic}</span><br><strong style="color:var(--dark); font-size:1.1em; line-height: 1.3; display:block; margin-top:5px;">${t.text}</strong></td>
+                <td class="interactive-cell">${selHTML}</td>`;
+            
+            activePartiesArr.forEach(partyName => {
+                let pVal = t.scores[partyName];
+                if(pVal !== undefined) tableHTML += `<td>${getSym(pVal)}</td>`;
+                else tableHTML += `<td><span style="color:var(--info-border);">-</span></td>`;
+            });
+            tableHTML += '</tr>';
+        });
+        
+        tableHTML += '</table>';
+        document.getElementById('comparison-wrapper').innerHTML = tableHTML;
+    }
+
+    function toggleDropdown(e, index) {
+        e.stopPropagation();
+        document.querySelectorAll('.custom-select-options').forEach(el => {
+            if(el.id !== 'options-'+index) el.style.display = 'none';
+        });
+        const opt = document.getElementById('options-'+index);
+        opt.style.display = opt.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateAnswer(e, index, valStr) {
+        e.stopPropagation();
+        document.getElementById('options-'+index).style.display = 'none';
+        userAnswers[index].skipped = (valStr === "null");
+        userAnswers[index].val = valStr === "null" ? null : parseInt(valStr);
+        calculateResults(true); 
+    }
+    
+    function updateWeight(index, isChecked) {
+        userAnswers[index].weight = isChecked ? 2 : 1;
+        calculateResults(true);
+    }
+
+    function getSym(val) {
+        if (val === 1) return '<span class="material-icons-round sym-icon sym-yes">check_circle</span>';
+        if (val === -1) return '<span class="material-icons-round sym-icon sym-no">cancel</span>';
+        if (val === 0) return '<span class="material-icons-round sym-icon sym-neu">remove_circle</span>';
+        return '';
+    }
+
+    function hideScrollHint() {
+        let hint = document.getElementById('scroll-hint');
+        if(hint) hint.style.opacity = '0';
+    }
+
+    function abortQuiz() { 
+        clearProgress(); 
+        document.querySelector('.print-only').style.display = 'none';
+        switchScreen('screen-start'); 
+    }
+</script>
+</body>
+</html>
