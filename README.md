@@ -10,18 +10,8 @@ Dies ist eine professionelle, lokal angepasste Voting Advice Application (VAA) �
 * **Auto-Save:** Dein Fortschritt wird im Browser gespeichert. Schließt du den Tab, kannst du später genau dort weitermachen.
 * **Dark Mode & Print Ready:** Optimiert für Smartphones, Desktops (inkl. Milchglas-Effekten) und perfekt formatiert für den Ausdruck als Spickzettel.
 
-## 🚀 Setup & Installation (GitHub Pages)
-
-Diese App besteht aus einer einzigen, hochgradig optimierten HTML-Datei (`index.html`). Es werden keine externen Frameworks wie React oder Vue benötigt, und es gibt kein Backend (Zero Tracking).
-
-1.  Lade die Datei `index.html` in dieses Repository hoch.
-2.  Gehe in deinem Repository auf **Settings** -> **Pages**.
-3.  Wähle unter "Source" den Zweig `main` (oder `master`) und den Ordner `/ (root)` aus. Klicke auf Save.
-4.  Nach ein paar Minuten ist dein eigener Wahl-O-Mat unter `https://[dein-username].github.io/[dein-repo-name]/` online erreichbar!
-
 ## ⚖️ Rechtliches
 * **Datenschutz:** Die App speichert keine Antworten auf Servern. Alles passiert lokal via `localStorage` im Browser des Nutzers. Eine DSGVO-konforme Datenschutzerklärung ist in die App integriert.
-* **Impressumspflicht:** Vergiss nicht, im HTML-Code bei den Platzhaltern (`[DEIN VORNAME NACHNAME]`) deine Impressumsdaten einzutragen, bevor du die Seite live schaltest.
 
 ---
 *Gebaut für eine starke lokale Demokratie in Bayern.*
